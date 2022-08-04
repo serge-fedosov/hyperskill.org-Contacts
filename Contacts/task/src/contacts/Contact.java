@@ -1,9 +1,10 @@
 package contacts;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.regex.Pattern;
 
-abstract public class Contact {
+abstract public class Contact implements Serializable {
 
     public String number;
     boolean isPerson;

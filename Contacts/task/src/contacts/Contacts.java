@@ -1,5 +1,7 @@
 package contacts;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -8,8 +10,50 @@ public class Contacts {
 
     Scanner scanner = new Scanner(System.in);
     List<Contact> contacts = new ArrayList<>();
+    String fileName;
 
     public Contacts() {
+    }
+
+    public void loadFile() {
+        try {
+            contacts = (ArrayList<Contact>) SerializationUtils.deserialize(fileName);
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void saveFile() {
+        try {
+            SerializationUtils.serialize(contacts, fileName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void save() {
+        if (fileName != null) {
+            try {
+                SerializationUtils.serialize(contacts, fileName);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void init(String fileName) {
+        this.fileName = fileName;
+
+        if (fileName != null) {
+            File file = new File(fileName);
+            if (file.exists()) {
+                // loading data
+                loadFile();
+            } else {
+                // save the empty list to a new file
+                saveFile();
+            }
+        }
     }
 
     public void count() {
@@ -55,6 +99,7 @@ public class Contacts {
         }
 
         System.out.println("The record added.");
+        save();
     }
 
     public void remove() {
@@ -63,7 +108,7 @@ public class Contacts {
             return;
         }
 
-        list();
+        printList();
 
         System.out.print("Select a record: ");
         int record = Integer.parseInt(scanner.nextLine());
@@ -78,7 +123,7 @@ public class Contacts {
             return;
         }
 
-        list();
+        printList();
 
         System.out.print("Select a record: ");
         int record = Integer.parseInt(scanner.nextLine());
@@ -130,21 +175,33 @@ public class Contacts {
         System.out.println("The record updated!");
     }
 
-    public void info() {
+    public void list() {
         if (contacts.size() == 0) {
             System.out.println("No records to show!");
             return;
         }
 
-        list();
+        printList();
 
-        System.out.print("Enter index to show info: ");
-        int index = Integer.parseInt(scanner.nextLine());
+        String action = null;
+        do {
 
-        contacts.get(index - 1).info();
+            System.out.print("[list] Enter action ([number], back): ");
+            action = scanner.nextLine();
+
+            if (!action.equals("back")) {
+                int index = Integer.parseInt(action);
+                contacts.get(index - 1).info();
+                record();
+            }
+
+        } while(!action.equals("back"));
     }
 
-    public void list() {
+
+
+
+    public void printList() {
         int c = 1;
         for (var contact : contacts) {
             System.out.println(Integer.toString(c) + ". " +  contact);
@@ -152,29 +209,55 @@ public class Contacts {
         }
     }
 
+    public void search() {
+
+        String action = "again";
+        do {
+
+            if (action.equals("again")) {
+
+                System.out.print("Enter search query: ");
+                String query = scanner.nextLine();
+
+
+            }
+
+
+            int c = 1;
+            for (var contact : contacts) {
+                System.out.println(Integer.toString(c) + ". " +  contact);
+                c++;
+            }
+
+            System.out.println("Found 3 results:");
+
+            System.out.print("[search] Enter action ([number], back, again): ");
+            action = scanner.nextLine();
+
+        } while(!action.equals("back"));
+
+    }
+
     public void menu() {
 
         String action = null;
         do {
 
-            System.out.print("\nEnter action (add, remove, edit, count, info, exit): ");
+            System.out.print("\n[menu] Enter action (add, list, search, count, exit): ");
             action = scanner.nextLine();
 
             switch (action) {
-                case "count":
-                    count();
-                    break;
                 case "add":
                     add();
                     break;
-                case "remove":
-                    remove();
+                case "list":
+                    list();
                     break;
-                case "edit":
-                    edit();
+                case "search":
+                    search();
                     break;
-                case "info":
-                    info();
+                case "count":
+                    count();
                     break;
                 default:
             }
