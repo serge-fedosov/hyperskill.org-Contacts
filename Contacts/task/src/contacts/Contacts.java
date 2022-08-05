@@ -3,8 +3,11 @@ package contacts;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Contacts {
 
@@ -65,36 +68,12 @@ public class Contacts {
         String type = scanner.nextLine();
 
         if (type.equals("person")) {
-            Person person = new Person();
-
-            System.out.print("Enter the name: ");
-            person.setName(scanner.nextLine());
-
-            System.out.print("Enter the surname: ");
-            person.setSurname(scanner.nextLine());
-
-            System.out.print("Enter the birth date: ");
-            person.setBirthDate(scanner.nextLine());
-
-            System.out.print("Enter the gender (M, F): ");
-            person.setGender(scanner.nextLine());
-
-            System.out.print("Enter the number: ");
-            person.setNumber(scanner.nextLine());
-
+            Contact person = new Person();
+            person.add();
             contacts.add(person);
         } else {
-            Organization organization = new Organization();
-
-            System.out.print("Enter the organization name: ");
-            organization.setName(scanner.nextLine());
-
-            System.out.print("Enter the address: ");
-            organization.setAddress(scanner.nextLine());
-
-            System.out.print("Enter the number: ");
-            organization.setNumber(scanner.nextLine());
-
+            Contact organization = new Organization();
+            organization.add();
             contacts.add(organization);
         }
 
@@ -102,19 +81,15 @@ public class Contacts {
         save();
     }
 
-    public void remove() {
+    public void delete(int index) {
         if (contacts.size() == 0) {
             System.out.println("No records to remove!");
             return;
         }
 
-        printList();
-
-        System.out.print("Select a record: ");
-        int record = Integer.parseInt(scanner.nextLine());
-
-        contacts.remove(record - 1);
+        contacts.remove(index - 1);
         System.out.println("The record removed!");
+        save();
     }
 
     public void edit() {
@@ -127,52 +102,9 @@ public class Contacts {
 
         System.out.print("Select a record: ");
         int record = Integer.parseInt(scanner.nextLine());
-
-        if (contacts.get(record - 1).isPerson) {
-
-            System.out.print("Select a field (name, surname, birth, gender, number): ");
-            String field = scanner.nextLine().trim();
-
-            Person person = (Person) contacts.get(record - 1);
-
-            if (field.equals("name")) {
-                System.out.print("Enter name: ");
-                person.setName(scanner.nextLine());
-            } else if (field.equals("surname")) {
-                System.out.print("Enter surname: ");
-                person.setSurname(scanner.nextLine());
-            } else if (field.equals("birth")) {
-                System.out.print("Enter the birth date: ");
-                person.setBirthDate(scanner.nextLine());
-            } else if (field.equals("gender")) {
-                System.out.print("Enter the gender (M, F): ");
-                person.setGender(scanner.nextLine());
-            } else if (field.equals("number")) {
-                System.out.print("Enter number: ");
-                person.setNumber(scanner.nextLine());
-            }
-
-            contacts.set(record - 1, person);
-
-        } else {
-
-            System.out.print("Select a field (address, number): ");
-            String field = scanner.nextLine().trim();
-
-            Organization organization = (Organization) contacts.get(record - 1);
-
-            if (field.equals("address")) {
-                System.out.print("Enter address: ");
-                organization.setAddress(scanner.nextLine());
-            } else if (field.equals("number")) {
-                System.out.print("Enter number: ");
-                organization.setNumber(scanner.nextLine());
-            }
-
-            contacts.set(record - 1, organization);
-        }
-
-        System.out.println("The record updated!");
+        contacts.get(record - 1).edit();
+        //System.out.println("The record updated!");
+        save();
     }
 
     public void list() {
@@ -186,20 +118,36 @@ public class Contacts {
         String action = null;
         do {
 
-            System.out.print("[list] Enter action ([number], back): ");
+            System.out.print("\n[list] Enter action ([number], back): ");
             action = scanner.nextLine();
 
             if (!action.equals("back")) {
                 int index = Integer.parseInt(action);
                 contacts.get(index - 1).info();
-                record();
+                record(index);
+                action = "back";
             }
 
         } while(!action.equals("back"));
     }
 
+    public void record(int index) {
 
+        String action = null;
+        do {
 
+            System.out.print("\n[record] Enter action (edit, delete, menu): ");
+            action = scanner.nextLine();
+            switch (action) {
+                case "edit" -> contacts.get(index - 1).edit();
+                case "delete" -> delete(index);
+                //case "menu" -> menu();
+                //default -> System.out.println("Error action");
+            }
+
+        } while(!action.equals("menu"));
+
+    }
 
     public void printList() {
         int c = 1;
@@ -211,27 +159,56 @@ public class Contacts {
 
     public void search() {
 
+        HashMap<Integer, Integer> search = new HashMap<>();
         String action = "again";
         do {
 
+            String query = null;
             if (action.equals("again")) {
 
                 System.out.print("Enter search query: ");
-                String query = scanner.nextLine();
+                query = scanner.nextLine();
 
 
+            } else {
+                int index = Integer.parseInt(action);
+                contacts.get(search.get(index - 1)).info(); //!!!!!
+                record(index);
+                action = "back";
+                return;
             }
 
 
-            int c = 1;
-            for (var contact : contacts) {
-                System.out.println(Integer.toString(c) + ". " +  contact);
-                c++;
+
+            search.clear();
+            Pattern javaPattern = Pattern.compile(query, Pattern.CASE_INSENSITIVE);
+            int c = 0;
+            for (int i = 0; i < contacts.size(); i++) {
+                Contact contact = contacts.get(i);
+
+                boolean addContact = false;
+                for (var field : contact.getFields()) {
+                    Matcher matcher = javaPattern.matcher(contact.getField(field));
+                    if (matcher.find()) {
+                        addContact = true;
+                    }
+                }
+
+                if (addContact) {
+                    search.put(c, i);
+                    c++;
+                }
             }
 
-            System.out.println("Found 3 results:");
+            System.out.println("Found " + c + " results:");
+            int c1 = 1;
+            for (int i = 0; i < search.size(); i++) {
+                Contact contact = contacts.get(search.get(i));
+                System.out.println(Integer.toString(c1) + ". " +  contact);
+                c1++;
+            }
 
-            System.out.print("[search] Enter action ([number], back, again): ");
+            System.out.print("\n[search] Enter action ([number], back, again): ");
             action = scanner.nextLine();
 
         } while(!action.equals("back"));
@@ -264,5 +241,6 @@ public class Contacts {
 
         } while (!action.equals("exit"));
 
+        System.exit(0);
     }
 }

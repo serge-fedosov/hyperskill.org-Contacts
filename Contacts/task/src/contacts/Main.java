@@ -8,7 +8,7 @@ public class Main {
             fileName = args[0];
         }
 
-        fileName = "test.data";
+        //fileName = "test.data";
 
         Contacts contacts = new Contacts();
         contacts.init(fileName);

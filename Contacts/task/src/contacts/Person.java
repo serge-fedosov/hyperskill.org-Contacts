@@ -1,6 +1,7 @@
 package contacts;
 
 import java.time.LocalDateTime;
+import java.util.Scanner;
 import java.util.regex.Pattern;
 
 public class Person extends Contact {
@@ -11,7 +12,6 @@ public class Person extends Contact {
     public String gender;
 
     public Person() {
-        this.isPerson = true;
         this.timeCreated = LocalDateTime.now();
         this.timeLastEdit = LocalDateTime.now();
     }
@@ -20,7 +20,6 @@ public class Person extends Contact {
         super(number);
         this.name = name;
         this.surname = surname;
-        this.isPerson = true;
         this.timeCreated = LocalDateTime.now();
         this.timeLastEdit = LocalDateTime.now();
     }
@@ -93,6 +92,35 @@ public class Person extends Contact {
                 "\nNumber: " + number +
                 "\nTime created: " + timeCreated +
                 "\nTime last edit: " + timeLastEdit);
+    }
+
+    @Override
+    public String[] getFields() {
+        return new String[] {"name", "surname", "birthDate", "gender", "number"};
+    }
+
+    @Override
+    public String getField(String field) {
+        return switch (field) {
+            case "name" -> getName();
+            case "surname" -> getSurname();
+            case "birthDate" -> getBirthDate();
+            case "gender" -> getGender();
+            case "number" -> getNumber();
+            default -> null;
+        };
+    }
+
+    @Override
+    public void setField(String field, String value) {
+        switch (field) {
+            case "name" -> setName(value);
+            case "surname" -> setSurname(value);
+            case "birthDate" -> setBirthDate(value);
+            case "gender" -> setGender(value);
+            case "number" -> setNumber(value);
+            default -> System.out.println("Error field");
+        }
     }
 
 }

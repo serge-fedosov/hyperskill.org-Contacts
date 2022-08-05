@@ -612,9 +612,13 @@ files:
 - name: src/contacts/SerializationUtils.java
   visible: true
   learner_created: true
+- name: test.data
+  visible: true
+  learner_created: true
 feedback_link: https://hyperskill.org/learn/step/5327#comment
-status: Failed
+status: Solved
 feedback:
-  message: Compilation Failed
-  time: Thu, 04 Aug 2022 16:33:51 UTC
+  message: Well done! You've finished the project. Select a new project on <a href="https://hyperskill.org/projects">JetBrains
+    Academy</a> to continue learning.
+  time: Fri, 05 Aug 2022 10:28:49 UTC
 record: -1

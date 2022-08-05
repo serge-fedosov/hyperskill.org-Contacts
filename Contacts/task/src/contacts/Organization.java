@@ -8,7 +8,6 @@ public class Organization extends Contact {
     public String address;
 
     public Organization() {
-        this.isPerson = false;
         this.timeCreated = LocalDateTime.now();
         this.timeLastEdit = LocalDateTime.now();
     }
@@ -17,7 +16,6 @@ public class Organization extends Contact {
         super(number);
         this.name = name;
         this.address = address;
-        this.isPerson = false;
         this.timeCreated = LocalDateTime.now();
         this.timeLastEdit = LocalDateTime.now();
     }
@@ -51,6 +49,28 @@ public class Organization extends Contact {
                 "\nNumber: " + number +
                 "\nTime created: " + timeCreated +
                 "\nTime last edit: " + timeLastEdit);
+    }
+
+    public String[] getFields() {
+        return new String[] {"name", "address", "number"};
+    }
+
+    public String getField(String field) {
+        return switch (field) {
+            case "name" -> getName();
+            case "address" -> getAddress();
+            case "number" -> getNumber();
+            default -> null;
+        };
+    }
+
+    public void setField(String field, String value) {
+        switch (field) {
+            case "name" -> setName(value);
+            case "address" -> setAddress(value);
+            case "number" -> setNumber(value);
+            default -> System.out.println("Error field");
+        }
     }
 
 }
